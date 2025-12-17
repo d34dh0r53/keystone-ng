@@ -26,6 +26,10 @@ path="src/bin/keystone.rs"
 name="keystone-db"
 path="src/bin/keystone_db.rs"
 
+[[example]]
+name = "test_ldap"
+path = "examples/test_ldap.rs"
+
 [[bench]]
 name = "fernet_token"
 harness = false
@@ -48,6 +52,7 @@ eyre = { version = "0.6" }
 fernet = { version = "0.2", default-features = false, features = ["rustcrypto"] }
 futures-util = { version = "0.3" }
 itertools = { version = "0.14" }
+ldap3 = { version = "0.11", features = ["tls"] }
 mockall_double = { version = "0.3" }
 nix = { version = "0.30", default-features = false, features = ["fs", "user"] }
 opa-wasm = { version = "^0.1", optional = true }

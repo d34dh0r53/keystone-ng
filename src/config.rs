@@ -62,6 +62,10 @@ pub struct Config {
     #[serde(default)]
     pub identity: IdentityProvider,
 
+    /// LDAP backend configuration.
+    #[serde(default)]
+    pub ldap: LdapConfig,
+
     /// API policy enforcement.
     #[serde(default)]
     pub api_policy: PolicyProvider,
@@ -279,6 +283,272 @@ impl Default for IdentityProvider {
             user_options_id_name_mapping: default_user_options_mapping(),
         }
     }
+}
+
+/// LDAP identity backend configuration.
+#[derive(Debug, Deserialize, Clone)]
+pub struct LdapConfig {
+    /// LDAP server URL (e.g., ldap://localhost or ldaps://localhost:636).
+    #[serde(default = "default_ldap_url")]
+    pub url: String,
+
+    /// DN of the LDAP user to bind as for searches.
+    #[serde(default)]
+    pub user: Option<String>,
+
+    /// Password for the LDAP bind user.
+    #[serde(default)]
+    pub password: Option<SecretString>,
+
+    /// LDAP base DN for the suffix.
+    #[serde(default = "default_ldap_suffix")]
+    pub suffix: String,
+
+    /// Search base for users.
+    #[serde(default = "default_ldap_user_tree_dn")]
+    pub user_tree_dn: String,
+
+    /// LDAP objectclass for users.
+    #[serde(default = "default_ldap_user_objectclass")]
+    pub user_objectclass: String,
+
+    /// LDAP attribute mapped to user id.
+    #[serde(default = "default_ldap_user_id_attribute")]
+    pub user_id_attribute: String,
+
+    /// LDAP attribute mapped to user name.
+    #[serde(default = "default_ldap_user_name_attribute")]
+    pub user_name_attribute: String,
+
+    /// LDAP attribute mapped to user email.
+    #[serde(default = "default_ldap_user_mail_attribute")]
+    pub user_mail_attribute: String,
+
+    /// LDAP attribute mapped to user enabled status.
+    #[serde(default)]
+    pub user_enabled_attribute: Option<String>,
+
+    /// Bitmask or boolean value to indicate user is enabled.
+    #[serde(default)]
+    pub user_enabled_mask: Option<u32>,
+
+    /// Default value for user enabled when attribute not present.
+    #[serde(default = "default_ldap_user_enabled_default")]
+    pub user_enabled_default: bool,
+
+    /// Additional LDAP search filter for users.
+    #[serde(default)]
+    pub user_filter: Option<String>,
+
+    /// Search base for groups.
+    #[serde(default = "default_ldap_group_tree_dn")]
+    pub group_tree_dn: String,
+
+    /// LDAP objectclass for groups.
+    #[serde(default = "default_ldap_group_objectclass")]
+    pub group_objectclass: String,
+
+    /// LDAP attribute mapped to group id.
+    #[serde(default = "default_ldap_group_id_attribute")]
+    pub group_id_attribute: String,
+
+    /// LDAP attribute mapped to group name.
+    #[serde(default = "default_ldap_group_name_attribute")]
+    pub group_name_attribute: String,
+
+    /// LDAP attribute mapped to group description.
+    #[serde(default = "default_ldap_group_desc_attribute")]
+    pub group_desc_attribute: String,
+
+    /// LDAP attribute listing group members.
+    #[serde(default = "default_ldap_group_member_attribute")]
+    pub group_member_attribute: String,
+
+    /// Additional LDAP search filter for groups.
+    #[serde(default)]
+    pub group_filter: Option<String>,
+
+    /// Use TLS for LDAP connections.
+    #[serde(default = "default_ldap_use_tls")]
+    pub use_tls: bool,
+
+    /// Require TLS certificate verification.
+    #[serde(default = "default_ldap_tls_reqcert")]
+    pub tls_reqcert: LdapTlsReqCert,
+
+    /// Path to CA certificate file.
+    #[serde(default)]
+    pub tls_cacertfile: Option<PathBuf>,
+
+    /// Path to CA certificate directory.
+    #[serde(default)]
+    pub tls_cacertdir: Option<PathBuf>,
+
+    /// Connection timeout in seconds.
+    #[serde(default = "default_ldap_timeout")]
+    pub timeout: u64,
+
+    /// Page size for LDAP queries (0 = no paging).
+    #[serde(default)]
+    pub page_size: usize,
+
+    /// Allow writes to LDAP (create/update/delete operations).
+    #[serde(default)]
+    pub allow_create: bool,
+
+    /// Allow update operations.
+    #[serde(default)]
+    pub allow_update: bool,
+
+    /// Allow delete operations.
+    #[serde(default)]
+    pub allow_delete: bool,
+
+    /// Use connection pooling.
+    #[serde(default = "default_ldap_use_pool")]
+    pub use_pool: bool,
+
+    /// Pool size.
+    #[serde(default = "default_ldap_pool_size")]
+    pub pool_size: usize,
+
+    /// Pool connection lifetime in seconds.
+    #[serde(default = "default_ldap_pool_connection_lifetime")]
+    pub pool_connection_lifetime: u64,
+}
+
+impl Default for LdapConfig {
+    fn default() -> Self {
+        Self {
+            url: default_ldap_url(),
+            user: None,
+            password: None,
+            suffix: default_ldap_suffix(),
+            user_tree_dn: default_ldap_user_tree_dn(),
+            user_objectclass: default_ldap_user_objectclass(),
+            user_id_attribute: default_ldap_user_id_attribute(),
+            user_name_attribute: default_ldap_user_name_attribute(),
+            user_mail_attribute: default_ldap_user_mail_attribute(),
+            user_enabled_attribute: None,
+            user_enabled_mask: None,
+            user_enabled_default: default_ldap_user_enabled_default(),
+            user_filter: None,
+            group_tree_dn: default_ldap_group_tree_dn(),
+            group_objectclass: default_ldap_group_objectclass(),
+            group_id_attribute: default_ldap_group_id_attribute(),
+            group_name_attribute: default_ldap_group_name_attribute(),
+            group_desc_attribute: default_ldap_group_desc_attribute(),
+            group_member_attribute: default_ldap_group_member_attribute(),
+            group_filter: None,
+            use_tls: default_ldap_use_tls(),
+            tls_reqcert: default_ldap_tls_reqcert(),
+            tls_cacertfile: None,
+            tls_cacertdir: None,
+            timeout: default_ldap_timeout(),
+            page_size: 0,
+            allow_create: false,
+            allow_update: false,
+            allow_delete: false,
+            use_pool: default_ldap_use_pool(),
+            pool_size: default_ldap_pool_size(),
+            pool_connection_lifetime: default_ldap_pool_connection_lifetime(),
+        }
+    }
+}
+
+/// LDAP TLS certificate verification mode.
+#[derive(Debug, Default, Deserialize, Clone)]
+pub enum LdapTlsReqCert {
+    /// Never verify.
+    #[serde(rename = "never")]
+    Never,
+    /// Allow without verification.
+    #[serde(rename = "allow")]
+    Allow,
+    /// Demand verification.
+    #[default]
+    #[serde(rename = "demand")]
+    Demand,
+}
+
+fn default_ldap_url() -> String {
+    "ldap://localhost".to_string()
+}
+
+fn default_ldap_suffix() -> String {
+    "dc=example,dc=com".to_string()
+}
+
+fn default_ldap_user_tree_dn() -> String {
+    "ou=Users,dc=example,dc=com".to_string()
+}
+
+fn default_ldap_user_objectclass() -> String {
+    "inetOrgPerson".to_string()
+}
+
+fn default_ldap_user_id_attribute() -> String {
+    "cn".to_string()
+}
+
+fn default_ldap_user_name_attribute() -> String {
+    "cn".to_string()
+}
+
+fn default_ldap_user_mail_attribute() -> String {
+    "mail".to_string()
+}
+
+fn default_ldap_user_enabled_default() -> bool {
+    true
+}
+
+fn default_ldap_group_tree_dn() -> String {
+    "ou=Groups,dc=example,dc=com".to_string()
+}
+
+fn default_ldap_group_objectclass() -> String {
+    "groupOfNames".to_string()
+}
+
+fn default_ldap_group_id_attribute() -> String {
+    "cn".to_string()
+}
+
+fn default_ldap_group_name_attribute() -> String {
+    "cn".to_string()
+}
+
+fn default_ldap_group_desc_attribute() -> String {
+    "description".to_string()
+}
+
+fn default_ldap_group_member_attribute() -> String {
+    "member".to_string()
+}
+
+fn default_ldap_use_tls() -> bool {
+    false
+}
+
+fn default_ldap_tls_reqcert() -> LdapTlsReqCert {
+    LdapTlsReqCert::Demand
+}
+
+fn default_ldap_timeout() -> u64 {
+    30
+}
+
+fn default_ldap_use_pool() -> bool {
+    true
+}
+
+fn default_ldap_pool_size() -> usize {
+    10
+}
+
+fn default_ldap_pool_connection_lifetime() -> u64 {
+    600
 }
 
 /// Resource provider (domain, project).

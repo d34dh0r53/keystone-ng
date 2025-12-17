@@ -24,6 +24,7 @@ use crate::identity::types::*;
 use crate::keystone::ServiceState;
 
 pub mod error;
+pub mod ldap;
 pub mod sql;
 
 #[async_trait]

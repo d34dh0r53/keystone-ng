@@ -48,7 +48,7 @@ pub use mock::MockIdentityProvider;
 
 use crate::auth::AuthenticatedInfo;
 use crate::config::Config;
-use crate::identity::backends::{IdentityBackend, sql::SqlBackend};
+use crate::identity::backends::{IdentityBackend, ldap::LdapBackend, sql::SqlBackend};
 use crate::identity::error::IdentityProviderError;
 use crate::identity::types::{
     Group, GroupCreate, GroupListParameters, UserCreate, UserListParameters,
@@ -70,13 +70,14 @@ impl IdentityProvider {
         config: &Config,
         plugin_manager: &PluginManager,
     ) -> Result<Self, IdentityProviderError> {
-        let mut backend_driver = if let Some(driver) =
+        let mut backend_driver: Box<dyn IdentityBackend> = if let Some(driver) =
             plugin_manager.get_identity_backend(config.identity.driver.clone())
         {
             driver.clone()
         } else {
             match config.identity.driver.as_str() {
                 "sql" => Box::new(SqlBackend::default()),
+                "ldap" => Box::new(LdapBackend::default()),
                 _ => {
                     return Err(IdentityProviderError::UnsupportedDriver(
                         config.identity.driver.clone(),

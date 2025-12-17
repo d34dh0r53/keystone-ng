@@ -1,0 +1,49 @@
+# Test Users
+dn: cn=alice,ou=Users,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: person
+cn: alice
+sn: Smith
+givenName: Alice
+mail: alice@example.org
+userPassword: password123
+
+dn: cn=bob,ou=Users,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: person
+cn: bob
+sn: Jones
+givenName: Bob
+mail: bob@example.org
+userPassword: password123
+
+dn: cn=charlie,ou=Users,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: person
+cn: charlie
+sn: Brown
+givenName: Charlie
+mail: charlie@example.org
+userPassword: password123
+
+# Test Groups
+dn: cn=admins,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: admins
+description: Administrator group
+member: cn=alice,ou=Users,dc=example,dc=org
+
+dn: cn=developers,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: developers
+description: Developer group
+member: cn=bob,ou=Users,dc=example,dc=org
+member: cn=charlie,ou=Users,dc=example,dc=org
+
+dn: cn=users,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: users
+description: General users group
+member: cn=alice,ou=Users,dc=example,dc=org
+member: cn=bob,ou=Users,dc=example,dc=org
+member: cn=charlie,ou=Users,dc=example,dc=org

@@ -99,6 +99,38 @@ pub enum IdentityDatabaseError {
         #[from]
         source: crate::auth::AuthenticationError,
     },
+
+    /// LDAP connection error.
+    #[error("LDAP connection error: {0}")]
+    LdapConnection(String),
+
+    /// LDAP bind error.
+    #[error("LDAP bind failed: {0}")]
+    LdapBindFailed(String),
+
+    /// LDAP search error.
+    #[error("LDAP search error: {0}")]
+    LdapSearch(String),
+
+    /// LDAP attribute mapping error.
+    #[error("LDAP attribute mapping error: {0}")]
+    LdapAttributeMapping(String),
+
+    /// LDAP operation not supported.
+    #[error("LDAP operation not supported: {0}")]
+    LdapNotSupported(String),
+
+    /// LDAP write operation not allowed.
+    #[error("LDAP write operations are disabled")]
+    LdapReadOnly,
+
+    /// LDAP entry not found.
+    #[error("LDAP entry not found: {0}")]
+    LdapEntryNotFound(String),
+
+    /// LDAP error from ldap3 crate.
+    #[error("LDAP error: {0}")]
+    Ldap3(#[from] ldap3::LdapError),
 }
 
 /// Convert the DB error into the [`IdentityDatabaseError`] with the context
