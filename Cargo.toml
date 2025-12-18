@@ -26,10 +26,6 @@ path="src/bin/keystone.rs"
 name="keystone-db"
 path="src/bin/keystone_db.rs"
 
-[[example]]
-name = "test_ldap"
-path = "examples/test_ldap.rs"
-
 [[bench]]
 name = "fernet_token"
 harness = false
@@ -146,6 +142,11 @@ test = false
 [[test]]
 name = "api"
 path = "tests/api/main.rs"
+test = false
+
+[[test]]
+name = "ldap"
+path = "tests/ldap/main.rs"
 test = false
 
 [lints.rust]
